@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Activity 4</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(136, 217, 240, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    }
+
+    .modal-content.shake {
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+
+    #resultBox {
+      margin: 20px auto;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 300px;
+      text-align: left;
+      display: none;
+    }
+
+    #resultBox b {
+      display: inline-block;
+      width: 70px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Press Ctrl + Alt + N to open form</h1>
+
+  
+  <div id="modal" class="modal">
+    <div class="modal-content" id="formBox">
+      <h2>Fill Form</h2>
+      <form id="myForm">
+        <label>Name:</label>
+        <input type="text" id="name" /><br>
+
+        <label>Age:</label>
+        <input type="number" id="age" /><br>
+
+        <label>Gender:</label>
+        <select id="gender">
+          <option value="">Select...</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select><br>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+  
+  
+
+ 
+  <div id="resultBox">
+    <h3>Submitted Data:</h3>
+    <p><b>Name:</b> <span id="resName"></span></p>
+    <p><b>Age:</b> <span id="resAge"></span></p>
+    <p><b>Gender:</b> <span id="resGender"></span></p>
+  </div>
+
+  <script>
+    const modal = document.getElementById("modal");
+    const form = document.getElementById("myForm");
+    const inputs = form.querySelectorAll("input, select");
+    const resultBox = document.getElementById("resultBox");
+
+    
+    inputs.forEach(input => {
+      const saved = localStorage.getItem(input.id);
+      if (saved) input.value = saved;
+    });
+
+   
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "n") {
+        if (modal.style.display === "flex") {
+          modal.style.display = "none";
+        } else {
+          modal.style.display = "flex";
+          inputs[0].focus();
+        }
+      }
+    });
+
+
+    inputs.forEach((input, index) => {
+      input.addEventListener("input", () => {
+        localStorage.setItem(input.id, input.value);
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          input.value = "";
+          localStorage.removeItem(input.id);
+        }
+        if (e.key === "Enter") {
+          e.preventDefault();
+          if (index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          } else {
+            form.querySelector("button").focus();
+          }
+        }
+      });
+    });
+
+  
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      let valid = true;
+
+      inputs.forEach(input => {
+        if (!input.value) valid = false;
+      });
+
+      
+      if (document.getElementById("gender").value === "Other") {
+        valid = false;
+      }
+
+      if (!valid) {
+        const box = document.getElementById("formBox");
+        box.classList.add("shake");
+        setTimeout(() => box.classList.remove("shake"), 400);
+      } else {
+      
+        document.getElementById("resName").innerText = document.getElementById("name").value;
+        document.getElementById("resAge").innerText = document.getElementById("age").value;
+        document.getElementById("resGender").innerText = document.getElementById("gender").value;
+
+        resultBox.style.display = "block";
+        modal.style.display = "none";
+      }
+    });
+    
+  </script>
+</body>
+</html>
